@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание СГАУ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Расписание СГАУ</h1>
+            <div class="controls">
+                <div class="selector">
+                    <select id="entityType">
+                        <option value="group">Группа</option>
+                        <option value="teacher">Преподаватель</option>
+                    </select>
+                    <select id="entityList"></select>
+                </div>
+                <div class="week-selector">
+                    <label for="week">Неделя:</label>
+                    <input type="number" id="week" min="1" max="52">
+                    <button id="currentWeekBtn">Текущая</button>
+                </div>
+                <button id="loadSchedule">Показать расписание</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="schedule-header">
+                <h2 id="scheduleTitle">Выберите группу или преподавателя</h2>
+                <div id="currentWeekDisplay"></div>
+            </div>
+            
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Загрузка данных...</p>
+            </div>
+
+            <div id="scheduleContainer" class="schedule-container"></div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
