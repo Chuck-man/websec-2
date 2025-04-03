@@ -136,6 +136,16 @@ button:hover {
     font-weight: 500;
 }
 
+.teacher-link {
+    color: #3498db;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.teacher-link:hover {
+    text-decoration: underline;
+}
+
 .lessons-list {
     padding: 15px;
 }
