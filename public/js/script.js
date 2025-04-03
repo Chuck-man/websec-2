@@ -2,21 +2,26 @@ $(document).ready(function() {
     const apiBaseUrl = window.location.origin;
     let currentWeek = getCurrentWeek();
     
-    // Инициализация
     $('#week').val(currentWeek);
     updateCurrentWeekDisplay();
     loadGroups();
     
-    // Обработчики событий
     $('#loadSchedule').click(loadSchedule);
     $('#currentWeekBtn').click(setCurrentWeek);
-    
-    // Функции
+
     function getCurrentWeek() {
         const now = new Date();
-        const startDate = new Date(now.getFullYear(), 0, 1);
-        const days = Math.floor((now - startDate) / (24 * 60 * 60 * 1000));
-        return Math.ceil(days / 7);
+        let yearStart;
+        
+        if (now.getMonth() >= 8) {
+            yearStart = new Date(now.getFullYear(), 8, 1);
+        } else {
+            yearStart = new Date(now.getFullYear() - 1, 8, 1);
+        }
+        
+        const diff = now - yearStart;
+        const week = Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
+        return Math.max(1, Math.min(week, 52));
     }
     
     function updateCurrentWeekDisplay() {
@@ -90,17 +95,14 @@ $(document).ready(function() {
             return;
         }
         
-        // Устанавливаем заголовок
         $('#scheduleTitle').text(`Расписание группы ${data.groupName || data.name}`);
         $('#currentWeekDisplay').text(`Неделя: ${data.week}`);
         
-        // Порядок дней недели
         const daysOrder = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
         
         daysOrder.forEach((dayName, dayIndex) => {
             const dayLessons = [];
             
-            // Собираем все занятия для этого дня
             for (const timeSlot in data.schedule) {
                 if (data.schedule[timeSlot][dayName]) {
                     dayLessons.push({
@@ -124,7 +126,6 @@ $(document).ready(function() {
                 
                 dayLessons.forEach(lesson => {
                     lesson.items.forEach(item => {
-                        // Формируем элемент преподавателя (ссылку или текст)
                         let teacherElement = 'Преподаватель не указан';
                         if (item.teacher && item.teacherId) {
                             teacherElement = `<a href="#" class="teacher-link" data-teacher-id="${item.teacherId}">${item.teacher}</a>`;
@@ -132,7 +133,6 @@ $(document).ready(function() {
                             teacherElement = item.teacher;
                         }
                         
-                        // Формируем элемент занятия
                         const $lesson = $(`
                             <div class="lesson ${item.colorClass || ''}">
                                 <div class="lesson-time">${lesson.time}</div>
@@ -160,7 +160,6 @@ $(document).ready(function() {
             }
         });
         
-        // Добавляем обработчик клика на имя преподавателя
         $container.on('click', '.teacher-link', function(e) {
             e.preventDefault();
             const teacherId = $(this).data('teacher-id');
@@ -204,17 +203,14 @@ $(document).ready(function() {
             return;
         }
         
-        // Устанавливаем заголовок
         $('#scheduleTitle').text(`Расписание преподавателя ${data.teacherName || data.name}`);
         $('#currentWeekDisplay').text(`Неделя: ${data.week}`);
         
-        // Порядок дней недели
         const daysOrder = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
         
         daysOrder.forEach((dayName, dayIndex) => {
             const dayLessons = [];
             
-            // Собираем все занятия для этого дня
             for (const timeSlot in data.schedule) {
                 if (data.schedule[timeSlot][dayName]) {
                     dayLessons.push({
@@ -238,11 +234,9 @@ $(document).ready(function() {
                 
                 dayLessons.forEach(lesson => {
                     lesson.items.forEach(item => {
-                        // Формируем элемент группы
                         const groupsElement = item.groups && item.groups.length > 0 ? 
                             `<div class="lesson-groups">Группы: ${item.groups.map(g => g.name || g.id).join(', ')}</div>` : '';
                         
-                        // Формируем элемент занятия
                         const $lesson = $(`
                             <div class="lesson ${item.colorClass || ''}">
                                 <div class="lesson-time">${lesson.time}</div>
@@ -266,7 +260,6 @@ $(document).ready(function() {
             }
         });
         
-        // Добавляем кнопку "Назад к группе"
         $container.prepend(`
             <button id="backToGroup" class="back-button">← Вернуться к расписанию группы</button>
         `);

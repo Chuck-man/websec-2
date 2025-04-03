@@ -11,7 +11,6 @@ const config = {
     ssauBaseUrl: 'https://ssau.ru',
     raspEndpoint: '/rasp',
     port: 3000,
-    // Жестко заданные группы, которые вам нужны
     groups: [
         { id: "1282690301", name: "6411-100503D" },
         { id: "1282690279", name: "6412-100503D" },
@@ -20,17 +19,14 @@ const config = {
     weeksInSemester: 52
 };
 
-// API для получения списка групп
 app.get('/api/groups', (req, res) => {
-    // Возвращаем только те группы, которые указаны в конфиге
     const simplifiedGroups = config.groups.map(group => ({
         id: group.id,
-        name: group.name.split('-')[0] // Возвращаем только "6411", "6412", "6413"
+        name: group.name.split('-')[0]
     }));
     res.json(simplifiedGroups);
 });
 
-// API для получения списка преподавателей (оставим как есть)
 app.get('/api/teachers', async (req, res) => {
     try {
         const url = `${config.ssauBaseUrl}${config.raspEndpoint}`;
@@ -57,7 +53,6 @@ app.get('/api/teachers', async (req, res) => {
     }
 });
 
-// API для получения расписания
 app.get('/api/schedule', async (req, res) => {
     const { groupId, staffId, week } = req.query;
     
@@ -65,7 +60,6 @@ app.get('/api/schedule', async (req, res) => {
         return res.status(400).json({ error: 'Missing groupId or staffId' });
     }
 
-    // Если запрашиваем группу, проверяем что она есть в нашем списке
     if (groupId && !config.groups.some(g => g.id === groupId)) {
         return res.status(404).json({ error: 'Group not found' });
     }
@@ -74,7 +68,6 @@ app.get('/api/schedule', async (req, res) => {
         let url, type, name;
         
         if (groupId) {
-            // Находим полное имя группы по ID
             const group = config.groups.find(g => g.id === groupId);
             name = group ? group.name : `Группа ${groupId}`;
             url = `${config.ssauBaseUrl}${config.raspEndpoint}?groupId=${groupId}`;
@@ -85,7 +78,6 @@ app.get('/api/schedule', async (req, res) => {
             name = `Преподаватель ${staffId}`;
         }
 
-        // Добавляем неделю, если указана
         if (week) {
             url += `&selectedWeek=${week}`;
         }
@@ -93,16 +85,13 @@ app.get('/api/schedule', async (req, res) => {
         const response = await axios.get(url);
         const $ = cheerio.load(response.data);
 
-        // Парсим расписание
         const scheduleData = parseSchedule($);
         
-        // Пытаемся получить имя из заголовка страницы
         const pageName = $('.schedule__head-title').text().trim();
         if (pageName) {
             name = pageName;
         }
 
-        // Получаем даты для каждого дня
         const dates = [];
         $('.schedule__item.schedule__head').each((index, elem) => {
             const date = $(elem).find('.caption-text.schedule__head-date').text().trim();
@@ -124,7 +113,6 @@ app.get('/api/schedule', async (req, res) => {
     }
 });
 
-// Функция для парсинга расписания (оставим вашу версию)
 function parseSchedule($) {
     const scheduleData = {};
     const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
